@@ -13,6 +13,6 @@ js函数分析工具
   
 
   ### 截图
-  ![phto](https://github.com/laketea/JsAnalysis/blob/master/show.png "")
+  ![phto](/show.jpg "")
 
     
