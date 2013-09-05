@@ -1,4 +1,3 @@
-
 js函数分析工具
 ===================================
 
@@ -11,5 +10,9 @@ js函数分析工具
   显示js函数被调用次数以及调用的函数列表<br />
   导出文本结果以及图形结果
   
+  
+
+  ### 截图
+  ![phto](https://github.com/laketea/JsAnalysis/blob/master/show.png "")
 
     
