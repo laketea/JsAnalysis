@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="jsanalysis" basedir="." default="all">
+
+	<!-- 设置项目属性 -->
+	<property name="work.dir" location="${user.home}" />
+	<property name="src.dir" location="." />
+	<property name="classes.dir" location="../classes" />
+	<property name="lib.dir" value="" />
+	<property name="openfire.lib.dir" value="../lib" />
+	<property name="service.jar.dir" location="${work.dir}/output" />
+	<property name="app.jar.dir" location="${service.jar.dir}" />
+	<property name="jar.name" value="${ant.project.name}.jar" />
+
+	<!-- 设置classpath -->
+	<path id="classpath">
+		<fileset dir="${openfire.lib.dir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<!-- 初始化 -->
+	<target name="init">
+		<echo>${ant.project.name} 初始化编译目录</echo>
+		<mkdir dir="${classes.dir}" />
+		<mkdir dir="${app.jar.dir}" />
+	</target>
+
+	<!-- 删除所有编译、打包生成的文件 -->
+	<target name="clean" depends="init">
+		<echo>${ant.project.name} 清空以前编译结果</echo>
+		<delete>
+			<fileset dir="${classes.dir}">
+				<include name="**" />
+			</fileset>
+		</delete>
+	</target>
+
+	<!-- 编译java文件 -->
+	<target name="compile" depends="clean">
+		<echo>${ant.project.name} 编译java文件</echo>
+		<javac debug="true" deprecation="true" destdir="${classes.dir}" srcdir="." encoding="gbk">
+			<classpath refid="classpath" />
+		</javac>
+	</target>
+
+	<!-- 复制资源文件到编译路径 -->
+	<target name="copyresource">
+		<echo>${ant.project.name} 复制资源文件到编译路径</echo>
+		<copy todir="${classes.dir}">
+			<fileset dir="${src.dir}">
+				<include name="yfpublish.xml" />
+				<include name="yfmodule.xml" />
+				<include name="version.properties" />
+				<include name="i18n/**/*.*" />
+				<include name="conf/**/*.*" />
+				<include name="**/resource/*.*" />
+			</fileset>
+		</copy>
+	</target>
+
+
+	<target name="manifest">
+		<echo>${ant.project.name} 生成MANIFEST.MF</echo>
+		<manifest file="${classes.dir}/MANIFEST.MF">
+			<attribute name="Main-Class" value="jsanalysis.MainFrame" />
+			<attribute name="Implementation-Title" value="laketea@163.com" />
+		</manifest>
+	</target>
+
+
+	<!-- 生成jar打包文件 -->
+	<target name="jar" depends="version,compile,copyresource,unjar,manifest">
+		<echo>${ant.project.name} 生成jar打包文件</echo>
+		<jar basedir="${classes.dir}" manifest="${classes.dir}/MANIFEST.MF" compress="true" jarfile="${app.jar.dir}/${jar.name}">
+			<include name="**" />
+			<include name="*.xml" />
+			<include name="i18n/**/*.*" />
+			<include name="conf/**/*.*" />
+			<include name="**/resource/*.*" />
+			<exclude name="MANIFEST.MF" />
+		</jar>
+	</target>
+
+	<!-- 解压包文件文件 -->
+	<target name="unjar" depends="init" description="unjar three part jar">
+		<unjar dest="${classes.dir}">
+			<!-- 包  件所在的目录 -->
+			<fileset dir="../lib">
+				<include name="**/*.jar" />
+			</fileset>
+		</unjar>
+	</target>
+
+	<!-- 生成版本信息 -->
+	<target name="changeversion">
+		<echo>${ant.project.name} 生成版本信息</echo>
+		<propertyfile file="version.properties" comment="version">
+			<entry key="project.version" type="int" default="000001" operation="+" pattern="000000" />
+			<entry key="project.complie.date" type="date" value="now" pattern="yyyyMMddHHmm" />
+		</propertyfile>
+	</target>
+
+	<!-- 修改版本文件 -->
+	<target name="version" depends="changeversion">
+		<echo>${ant.project.name} 修改版本文件</echo>
+		<property file="version.properties" />
+		<replaceregexp encoding="utf-8" match="&quot; version=&quot;(.+)&quot;" replace="&quot; version=&quot;${project.version}.v${project.complie.date}&quot;">
+			<fileset dir=".." includes="**/yfpublish.xml" />
+		</replaceregexp>
+	</target>
+
+
+	<!-- 做所有事情 -->
+	<target name="all" depends="jar" description="Build everything." />
+
+</project>
